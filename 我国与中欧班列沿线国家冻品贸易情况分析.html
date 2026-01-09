@@ -1,0 +1,1000 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>我国与中欧班列沿线国家冻品贸易情况分析（2025年1-10月）</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --text:#e8eefc;
+      --muted:#a9b6d6;
+      --line:rgba(255,255,255,.10);
+      --accent:#6aa6ff;
+      --good:#39d98a;
+      --warn:#ffcf5b;
+      --bad:#ff5d6c;
+
+      --c1:#6aa6ff; /* 海鲜 */
+      --c2:#ffcf5b; /* 肉类 */
+      --c3:#39d98a; /* 果蔬 */
+      --c4:#b68cff; /* 加工品 */
+
+      --import:#6aa6ff;
+      --export:#39d98a;
+    }
+
+    *{box-sizing:border-box}
+    html, body{
+      height:100%;
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 20% 0%, rgba(106,166,255,.25), transparent 60%),
+        radial-gradient(1000px 700px at 90% 10%, rgba(182,140,255,.18), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      line-height:1.45;
+    }
+
+    .wrap{max-width:1180px;margin:0 auto;padding:28px 16px 44px;}
+    header{
+      display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;
+      padding:16px 16px 14px;border:1px solid var(--line);border-radius:14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      backdrop-filter: blur(6px);
+    }
+    .title h1{margin:0;font-size:18px;letter-spacing:.2px;}
+    .title .sub{margin-top:6px;color:var(--muted);font-size:12.5px;}
+
+    .grid{display:grid;gap:12px;margin-top:12px;}
+    @media (min-width: 980px){
+      /* 让进口/出口结构更宽 */
+      .grid.cols-3{grid-template-columns:0.85fr 1.075fr 1.075fr}
+      .grid.cols-2{grid-template-columns:1fr 1fr}
+    }
+
+    .card{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border-radius:14px;
+      padding:14px;
+      overflow:hidden;
+      position:relative;
+    }
+    .card h2, .card h3{margin:0;font-size:14px;letter-spacing:.2px;}
+    .card .meta{margin-top:6px;color:var(--muted);font-size:12px;}
+
+    .kpi{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    /* 4个方框纵向排列 */
+    .kpi.vertical{grid-template-columns:1fr;}
+    .kpi .box{
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.10);
+    }
+    .kpi .label{color:var(--muted);font-size:12px;}
+    .kpi .value{margin-top:4px;font-size:18px;font-weight:900;letter-spacing:.2px;}
+    .kpi .hint{margin-top:4px;font-size:12px;color:var(--muted);}
+
+    .section-title{
+      margin:18px 2px 10px;
+      display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    }
+    .section-title h2{margin:0;font-size:15px;letter-spacing:.2px;}
+    .section-title .note{color:var(--muted);font-size:12px;}
+
+    .split{display:grid;gap:12px;}
+    @media (min-width: 980px){ .split{grid-template-columns: 1fr 1fr} }
+
+    .dual-donuts{
+      margin-top:10px;
+      display:grid;
+      gap:12px;
+      grid-template-columns: 1fr;
+    }
+
+    .donut-block{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(0,0,0,.10);
+      padding:10px;
+    }
+    .donut-block .subtitle{
+      display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      color:var(--muted);font-size:12px;margin-bottom:10px;
+    }
+
+    .donut{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .donut svg{
+      width:148px;height:148px;flex:0 0 auto;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,.35));
+    }
+    .donut-wrap{position:relative;width:148px;height:148px;flex:0 0 auto;}
+    .donut .center{
+      position:absolute;inset:0;
+      display:flex;align-items:center;justify-content:center;
+      flex-direction:column;text-align:center;pointer-events:none;
+      padding:8px;
+    }
+    .donut .center .big{font-weight:950;font-size:15px;letter-spacing:.2px;}
+    .donut .center .small{font-size:12px;color:var(--muted);margin-top:2px;}
+
+    .legend{
+      display:flex;flex-direction:column;gap:8px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+    .legend .item{
+      display:flex;justify-content:space-between;gap:10px;
+      padding:8px 10px;border:1px solid var(--line);border-radius:12px;
+      background:rgba(0,0,0,.10);
+      font-size:12.5px;
+    }
+    .legend .left{
+      display:flex;gap:8px;align-items:center;color:var(--muted);
+      overflow:hidden;
+    }
+    .legend .left span:last-child{
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+    .swatch{width:10px;height:10px;border-radius:3px;background:#fff;flex:0 0 auto;}
+    .legend .right{font-weight:800;color:var(--text);white-space:nowrap;}
+
+    .bars{margin-top:10px;display:flex;flex-direction:column;gap:8px;}
+    .bar{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px 10px;
+      background:rgba(0,0,0,.10);
+    }
+    .bar .top{
+      display:flex;justify-content:space-between;gap:10px;align-items:center;
+      font-size:12.5px;
+    }
+    .bar .name{
+      color:var(--muted);
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+      max-width: 64%;
+    }
+    .bar .val{font-weight:900;white-space:nowrap;}
+    .track{margin-top:7px;height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;}
+    .fill{height:100%;width:0%;border-radius:999px;background:var(--accent);}
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+      overflow:hidden;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.10);
+      font-size:12.5px;
+    }
+    th, td{padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+    th{text-align:left;color:var(--muted);font-weight:800;background:rgba(255,255,255,.03);}
+    tr:last-child td{border-bottom:none}
+    .muted{color:var(--muted)}
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:12px;border:1px solid var(--line);
+      background:rgba(0,0,0,.10);
+      font-size:12.5px;color:var(--muted);
+    }
+    .tag strong{color:var(--text)}
+    .callout{
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(106,166,255,.12), rgba(0,0,0,.10));
+    }
+    .callout .headline{font-weight:950;letter-spacing:.2px;}
+    .callout ul{margin:8px 0 0 0;padding:0;list-style:none;color:var(--muted)}
+    .callout li{margin:8px 0;display:flex;gap:10px;align-items:flex-start;}
+    .check{color:var(--good);font-weight:950;line-height:1.2;margin-top:1px;}
+    .callout strong{color:var(--text);}
+
+    /* 进出口规模对比：分组并列水平条形图 */
+    .cmp-legend{
+      margin-top:10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .cmp-legend .chip{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;border:1px solid var(--line);
+      background:rgba(0,0,0,.10);
+      color:var(--muted);
+      font-size:12.5px;
+    }
+    .cmp-legend .dot{width:10px;height:10px;border-radius:3px;}
+    .cmp{
+      margin-top:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .cmp-row{
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(0,0,0,.10);
+      padding:10px;
+    }
+    .cmp-head{
+      display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;
+      margin-bottom:8px;
+      font-size:12.5px;
+    }
+    .cmp-name{font-weight:950;color:var(--muted)}
+    .cmp-values{color:var(--muted)}
+    .cmp-bars{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      align-items:center;
+    }
+    @media (min-width: 720px){
+      .cmp-bars{grid-template-columns: 1fr 1fr;}
+    }
+    .cmp-bar{
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(255,255,255,.02);
+      padding:8px 10px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      min-width:0;
+    }
+    .cmp-bar .lbl{
+      width:48px;flex:0 0 auto;
+      text-align:right;
+      font-weight:950;
+      color:var(--muted);
+    }
+    .cmp-bar .trk{
+      flex:1 1 auto;
+      height:10px;
+      background:rgba(255,255,255,.08);
+      border-radius:999px;
+      overflow:hidden;
+      min-width:0;
+    }
+    .cmp-bar .fl{height:100%;width:0%;border-radius:999px;}
+    .cmp-bar .num{
+      width:120px;flex:0 0 auto;
+      text-align:right;
+      font-weight:900;
+      color:var(--text);
+      white-space:nowrap;
+    }
+
+    .bullets{
+      margin-top:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .bullet{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:10px 10px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(0,0,0,.10);
+    }
+    .dot2{
+      width:10px;height:10px;border-radius:3px;margin-top:4px;flex:0 0 auto;
+      background:rgba(255,255,255,.40);
+    }
+    .bullet .t1{font-weight:950}
+    .bullet .t2{color:var(--muted);font-size:12.5px;margin-top:4px}
+
+    .mini-cards{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    @media (min-width: 720px){
+      .mini-cards{grid-template-columns: 1fr 1fr 1fr;}
+      .mini-cards.two{grid-template-columns: 1fr 1fr;}
+    }
+    .mini-card{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      background:rgba(0,0,0,.10);
+      min-height:74px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .mini-card .n{font-weight:950}
+    .mini-card .m{margin-top:6px;color:var(--muted);font-size:12.5px}
+
+    footer{
+      margin-top:14px;color:var(--muted);font-size:12px;
+      display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>我国与中欧班列沿线国家冻品贸易情况分析</h1>
+        <div class="sub">
+          数据来源：海关总署 | 口径：2025年1-10月数据；涵盖中欧班列沿线国家
+        </div>
+      </div>
+    </header>
+
+    <!-- 总体 + 结构 -->
+    <div class="grid cols-3">
+      <div class="card">
+        <h2>整体情况</h2>
+        <div class="meta">单位：万吨 / 亿元</div>
+
+        <div class="kpi vertical">
+          <div class="box">
+            <div class="label">贸易总额（进口+出口）</div>
+            <div class="value" id="kpi-total"></div>
+            <div class="hint">重量 / 金额</div>
+          </div>
+
+          <div class="box">
+            <div class="label">贸易差额（金额）</div>
+            <div class="value" id="kpi-balance"></div>
+            <div class="hint">出口 - 进口（亿元）</div>
+          </div>
+
+          <div class="box">
+            <div class="label">进口（全品类）</div>
+            <div class="value" id="kpi-import"></div>
+            <div class="hint">重量 / 金额</div>
+          </div>
+
+          <div class="box">
+            <div class="label">出口（全品类）</div>
+            <div class="value" id="kpi-export"></div>
+            <div class="hint">重量 / 金额</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>进口结构</h2>
+        <div class="meta" id="meta-import-structure"></div>
+
+        <div class="dual-donuts">
+          <div class="donut-block">
+            <div class="subtitle">
+              <span>金额结构（占比）</span>
+              <span class="muted">按品类</span>
+            </div>
+            <div class="donut" id="donut-import-amt"></div>
+          </div>
+
+          <div class="donut-block">
+            <div class="subtitle">
+              <span>重量结构（占比）</span>
+              <span class="muted">按品类</span>
+            </div>
+            <div class="donut" id="donut-import-wt"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>出口结构</h2>
+        <div class="meta" id="meta-export-structure"></div>
+
+        <div class="dual-donuts">
+          <div class="donut-block">
+            <div class="subtitle">
+              <span>金额结构（占比）</span>
+              <span class="muted">按品类</span>
+            </div>
+            <div class="donut" id="donut-export-amt"></div>
+          </div>
+
+          <div class="donut-block">
+            <div class="subtitle">
+              <span>重量结构（占比）</span>
+              <span class="muted">按品类</span>
+            </div>
+            <div class="donut" id="donut-export-wt"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="headline">关键发现</div>
+      <ul>
+        <li><span class="check">✓</span><span>进⼝结构集中：进⼝以⾁类和海鲜为主，合计占⽐超过99%，显⽰国内对这两⼤类冻品的强劲需求。</span></li>
+        <li><span class="check">✓</span><span>⾼价值海鲜进⼝：海鲜进⼝⾦额最⾼达279亿元，属于⾼附加值品类，尤其是活鲜冷蟹和鲑⻥。</span></li>
+        <li><span class="check">✓</span><span>核心资源国：俄罗斯（海鲜供应、出⼝市场）、西班⽛（猪⾁供应）、挪威（⾼端海鲜供应）。</span></li>
+        <li><span class="check">✓</span><span>出⼝品类特征：出⼝以果蔬为主（重量占比约60%），但单价相对较低，主要是⻢铃薯、⼤蒜等基础农产品。</span></li>
+        <li><span class="check">✓</span><span>贸易逆差明显：存在较⼤的贸易逆差，反映出中国与中欧班列沿线国家之间"进⼝⾼价值蛋⽩，出⼝基础农产品"的贸易格局。</span></li>
+      </ul>
+    </div>
+
+    <!-- 进出口规模对比（按品类） -->
+    <div class="section-title">
+      <h2>进出⼝规模对⽐（按品类）</h2>
+      <div class="note">分组并列水平条形图（每个品类：进口 vs 出口 并列展示）</div>
+    </div>
+
+    <div class="card">
+      <h3>进出口规模对比</h3>
+      <div class="meta">单位：亿元 / 万吨（分别对应金额与重量）</div>
+
+      <div class="cmp-legend">
+        <span class="chip"><span class="dot" style="background:var(--import)"></span>进口</span>
+        <span class="chip"><span class="dot" style="background:var(--export)"></span>出口</span>
+      </div>
+
+      <div class="tag" style="margin-top:10px;"><strong>金额对比</strong>（亿元）</div>
+      <div class="cmp" id="cmp-amt"></div>
+
+      <div class="tag" style="margin-top:14px;"><strong>重量对比</strong>（万吨）</div>
+      <div class="cmp" id="cmp-wt"></div>
+    </div>
+
+    <!-- 进口板块 -->
+    <div class="section-title">
+      <h2>进口（分品类）</h2>
+      <div class="note">重点：海鲜与肉类为绝对大盘；果蔬/加工品为补充品类</div>
+    </div>
+
+    <div class="split">
+      <div class="card">
+        <h3>进口｜海鲜（最大盘）</h3>
+        <div class="meta" id="meta-import-seafood"></div>
+
+        <div class="tag">TOP来源国（按金额，含占比）</div>
+        <div class="bars" id="bars-import-seafood-countries"></div>
+
+        <div class="tag" style="margin-top:10px;">主力单品（按重量排序｜吨/万元）</div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:48%">单品</th>
+              <th style="width:26%">重量（吨）</th>
+              <th style="width:26%">金额（万元）</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-import-seafood-items"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>进口｜肉类（第二大盘）</h3>
+        <div class="meta" id="meta-import-meat"></div>
+
+        <div class="tag">TOP来源国（按金额，含占比）</div>
+        <div class="bars" id="bars-import-meat-countries"></div>
+
+        <div class="tag" style="margin-top:10px;">主力单品（按重量排序｜吨/万元）</div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:48%">单品</th>
+              <th style="width:26%">重量（吨）</th>
+              <th style="width:26%">金额（万元）</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-import-meat-items"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="split" style="margin-top:12px;">
+      <div class="card">
+        <h3>进口｜冻果蔬（补充品类）</h3>
+        <div class="meta" id="meta-import-fv"></div>
+
+        <div class="bullets" id="bullets-import-fv"></div>
+      </div>
+
+      <div class="card">
+        <h3>进口｜冻加工品（补充品类）</h3>
+        <div class="meta" id="meta-import-proc"></div>
+
+        <div class="bullets" id="bullets-import-proc"></div>
+      </div>
+    </div>
+
+    <!-- 出口板块 -->
+    <div class="section-title">
+      <h2>出口（分品类）</h2>
+      <div class="note">海鲜=金额引擎｜果蔬=重量担当；冻肉/加工品体量较小但有结构意义</div>
+    </div>
+
+    <div class="split">
+      <div class="card">
+        <h3>出口｜海鲜（出口金额引擎）</h3>
+        <div class="meta" id="meta-export-seafood"></div>
+
+        <div class="tag">TOP目的国（按金额，含占比）</div>
+        <div class="bars" id="bars-export-seafood-countries"></div>
+
+        <div class="tag" style="margin-top:10px;">主力单品（示例｜吨/万元）</div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:48%">单品</th>
+              <th style="width:26%">重量（吨）</th>
+              <th style="width:26%">金额（万元）</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-export-seafood-items"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>出口｜果蔬（走量品类）</h3>
+        <div class="meta" id="meta-export-fv"></div>
+
+        <div class="tag">TOP目的国（按金额，含占比）</div>
+        <div class="bars" id="bars-export-fv-countries"></div>
+
+        <div class="tag" style="margin-top:10px;">典型走量单品（按重量｜吨）</div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:56%">单品</th>
+              <th style="width:22%">重量（吨）</th>
+              <th style="width:22%">备注</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-export-fv-items"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="split" style="margin-top:12px;">
+      <div class="card">
+        <h3>出口｜冻肉类（补充品类）</h3>
+        <div class="meta" id="meta-export-meat"></div>
+
+        <div class="tag">主要出口目的地</div>
+        <div class="muted" style="margin-top:10px;font-size:12.5px;" id="export-meat-dests"></div>
+
+        <div class="tag" style="margin-top:10px;">主要细分品类</div>
+        <div class="mini-cards" id="cards-export-meat"></div>
+      </div>
+
+      <div class="card">
+        <h3>出口｜冻加工品（补充品类）</h3>
+        <div class="meta" id="meta-export-proc"></div>
+
+        <div class="tag" style="margin-top:10px;">主要细分品类</div>
+        <div class="mini-cards two" id="cards-export-proc"></div>
+      </div>
+    </div>
+
+    <footer>
+      <div>注：总体KPI单位为“万吨/亿元”；明细表单位为“吨/万元”。本页口径：2025年1-10月，中欧班列沿线国家。</div>
+    </footer>
+  </div>
+
+  <script>
+    // ===== 数据（2025年1-10月｜中欧班列沿线国家口径）=====
+    // 金额单位：万元；重量单位：吨
+    const data = {
+      categories: [
+        { key:"seafood", name:"海鲜", color: css("--c1") },
+        { key:"meat",    name:"肉类", color: css("--c2") },
+        { key:"fv",      name:"果蔬", color: css("--c3") },
+        { key:"proc",    name:"加工品", color: css("--c4") },
+      ],
+      import: {
+        byCat: {
+          seafood: { wt: 1108791.3630, amt: 2793518.6980 },
+          meat:    { wt: 1151182.4590, amt: 1930347.3737 },
+          fv:      { wt: 5632.2660,    amt: 10045.5617 },
+          proc:    { wt: 10020.0000,   amt: 15324.4053 }
+        },
+        topCountries: {
+          seafood: [
+            { name:"俄罗斯", v:1794268.6733 },
+            { name:"挪威",   v:777513.2495 },
+            { name:"西班牙", v:83302.9385 },
+            { name:"法国",   v:48473.3696 },
+            { name:"荷兰",   v:21343.4445 }
+          ],
+          meat: [
+            { name:"西班牙", v:723590.4879 },
+            { name:"俄罗斯", v:444886.0586 },
+            { name:"荷兰",   v:237760.3034 },
+            { name:"丹麦",   v:209831.3205 },
+            { name:"法国",   v:176251.3731 }
+          ]
+        },
+        items: {
+          seafood: [
+            { name:"冻阿拉斯加狭鳕鱼", wt:479296.7930, amt:444649.0886 },
+            { name:"其他活、鲜或冷的蟹（种苗除外）", wt:33687.3630, amt:626714.4699 },
+            { name:"冻鳕鱼", wt:76110.5190, amt:324895.5288 },
+            { name:"冻鲱鱼", wt:181181.0690, amt:92616.6086 },
+            { name:"冻黑线鳕鱼", wt:28906.8920, amt:104979.2645 }
+          ],
+          meat: [
+            { name:"其他冻猪杂碎", wt:503281.1970, amt:804192.4287 },
+            { name:"其他冻猪肉", wt:356267.0880, amt:563240.1875 },
+            { name:"冻带骨猪前/后腿及肉块", wt:98527.9350, amt:132717.4592 },
+            { name:"冻鸡爪", wt:103955.1850, amt:225619.7079 },
+            { name:"冻去骨牛肉", wt:17173.6270, amt:81640.7689 }
+          ]
+        },
+        breakdowns: {
+          fv: [
+            { name:"冷冻水果/坚果", wt:2310, countries:"瑞典、波兰" },
+            { name:"冷冻豌豆", wt:2278, countries:"瑞典、芬兰" }
+          ],
+          proc: [
+            { name:"冷冻马铃薯", wt:6216, countries:"比利时、荷兰" },
+            { name:"冷冻橙汁", wt:4005, countries:"西班牙、意大利" }
+          ]
+        }
+      },
+      export: {
+        byCat: {
+          seafood: { wt: 401699.5540, amt: 1211545.3576 },
+          fv:      { wt: 767321.5820, amt: 549369.4962 },
+          meat:    { wt: 96800.0000,  amt: 111414.7709 },
+          proc:    { wt: 9700.0000,   amt: 17545.0656 }
+        },
+        topCountries: {
+          seafood: [
+            { name:"西班牙", v:250866.8853 },
+            { name:"德国",   v:226825.8470 },
+            { name:"俄罗斯", v:154566.9161 },
+            { name:"法国",   v:113755.5585 },
+            { name:"荷兰",   v:107546.0058 }
+          ],
+          fv: [
+            { name:"俄罗斯", v:261560.0381 },
+            { name:"荷兰",   v:96304.1697 },
+            { name:"德国",   v:49205.7614 },
+            { name:"意大利", v:36588.5808 },
+            { name:"西班牙", v:23413.4162 }
+          ]
+        },
+        items: {
+          seafood: [
+            { name:"冻阿拉斯加狭鳕鱼鱼片", wt:108648.0160, amt:212758.0060 },
+            { name:"冻鳕鱼鱼片", wt:29672.1290, amt:178314.2009 },
+            { name:"其他冻的墨鱼及鱿鱼", wt:54378.0530, amt:164763.4272 },
+            { name:"冻的大麻哈/鲑鱼等鱼片", wt:18159.2960, amt:88664.6174 },
+            { name:"冻罗非鱼鱼片", wt:17676.9500, amt:40646.4338 }
+          ],
+          fv: [
+            { name:"鲜或冷藏的马铃薯（种用除外）", wt:158401.0250, note:"几乎全部去俄罗斯" },
+            { name:"鲜或冷藏的番茄", wt:45274.6180, note:"主要去俄罗斯" },
+            { name:"鲜或冷藏的洋葱", wt:63182.8040, note:"俄罗斯为主" },
+            { name:"鲜或冷藏的蒜头", wt:92217.7450, note:"俄+西欧多国" },
+            { name:"冷冻未列名蔬菜", wt:88296.5640, note:"多国分布，俄为主" }
+          ]
+        },
+        breakdowns: {
+          meat: {
+            dests: "俄罗斯（89.3%）、白俄罗斯（6.6%）",
+            items: [
+              { name:"其他冻鸡块", wtWanTon:8.40, countries:"俄罗斯" },
+              { name:"带骨冻鸡块", wtWanTon:0.55, countries:"俄罗斯" },
+              { name:"冻兔肉",     wtWanTon:0.39, countries:"德国/比利时" }
+            ]
+          },
+          proc: {
+            totalWanTon: 0.97,
+            items: [
+              { name:"冷冻马铃薯", note:"主要去：俄罗斯" },
+              { name:"冷冻橙汁",   note:"主要去：荷兰" }
+            ]
+          }
+        }
+      }
+    };
+
+    // ===== 计算汇总 =====
+    function sumCats(side, field){
+      return data.categories.reduce((a,c)=>a + (side.byCat[c.key]?.[field] || 0), 0);
+    }
+    data.totals = {
+      import: { wt: sumCats(data.import, "wt"), amt: sumCats(data.import, "amt") },
+      export: { wt: sumCats(data.export, "wt"), amt: sumCats(data.export, "amt") }
+    };
+
+    // ===== 工具 =====
+    function css(varName){ return getComputedStyle(document.documentElement).getPropertyValue(varName).trim(); }
+    function fmt(n, digits=0){
+      if (n === null || n === undefined || Number.isNaN(n)) return "-";
+      return Number(n).toLocaleString("zh-CN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
+    }
+    function amtFmtWan(n){ return fmt(n, 1); } // 万元
+    function wtFmtTon(n){ return fmt(n, 0); }  // 吨
+    function toWanTon(ton){ return ton/10000; }     // 吨 -> 万吨
+    function toYiYuan(wanYuan){ return wanYuan/10000; } // 万元 -> 亿元
+    function wtFmtWanTon(ton){ return fmt(toWanTon(ton), 2); } // 万吨（两位小数）
+    function amtFmtYi(wanYuan){ return fmt(toYiYuan(wanYuan), 2); } // 亿元（两位小数）
+    function pct(v, total){ if(!total) return "0.0%"; return (v/total*100).toFixed(1) + "%"; }
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // ===== Donut =====
+    function donutSvg(slices, centerTextBig, centerTextSmall){
+      const total = slices.reduce((a,s)=>a+s.v, 0);
+
+      const size = 148;
+      const cx = size/2, cy = size/2;
+
+      const r = 58;
+      const stroke = 14;
+      let a0 = -Math.PI/2;
+
+      function arcPath(aStart, aEnd){
+        const x1 = cx + r * Math.cos(aStart);
+        const y1 = cy + r * Math.sin(aStart);
+        const x2 = cx + r * Math.cos(aEnd);
+        const y2 = cy + r * Math.sin(aEnd);
+        const large = (aEnd - aStart) > Math.PI ? 1 : 0;
+        return `M ${x1.toFixed(3)} ${y1.toFixed(3)} A ${r} ${r} 0 ${large} 1 ${x2.toFixed(3)} ${y2.toFixed(3)}`;
+      }
+
+      let paths = "";
+      slices.forEach(s=>{
+        const ang = total ? (s.v/total)*Math.PI*2 : 0;
+        const a1 = a0 + ang;
+        if (ang > 0.0001){
+          paths += `<path d="${arcPath(a0,a1)}" fill="none" stroke="${s.color}" stroke-width="${stroke}" stroke-linecap="round" />`;
+        }
+        a0 = a1;
+      });
+
+      const ringBg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="${stroke}" />`;
+      const innerR = r - stroke/2 - 8;
+      const centerFill = `<circle cx="${cx}" cy="${cy}" r="${innerR}" fill="rgba(0,0,0,.20)" />`;
+
+      return `
+        <div class="donut-wrap">
+          <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="结构占比圆环图">
+            ${ringBg}
+            ${paths}
+            ${centerFill}
+          </svg>
+          <div class="center">
+            <div class="big">${centerTextBig}</div>
+            <div class="small">${centerTextSmall}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDonut(containerId, slices, centerBig, centerSmall){
+      const total = slices.reduce((a,s)=>a+s.v, 0);
+      const donut = donutSvg(slices, centerBig, centerSmall);
+      const legend = `
+        <div class="legend">
+          ${slices
+            .slice()
+            .sort((a,b)=>b.v-a.v)
+            .map(s=>`
+              <div class="item">
+                <div class="left">
+                  <span class="swatch" style="background:${s.color}"></span>
+                  <span>${escapeHtml(s.name)}</span>
+                </div>
+                <div class="right">${pct(s.v,total)}</div>
+              </div>
+            `).join("")}
+        </div>
+      `;
+      document.getElementById(containerId).innerHTML = donut + legend;
+    }
+
+    // ===== Bars（含占比）=====
+    function renderBars(containerId, items, color, totalForPct){
+      const max = Math.max(...items.map(x=>x.v));
+      const html = items.map(x=>{
+        const w = max ? (x.v/max*100) : 0;
+        const p = totalForPct ? pct(x.v, totalForPct) : "";
+        return `
+          <div class="bar">
+            <div class="top">
+              <div class="name">${escapeHtml(x.name)}</div>
+              <div class="val">${amtFmtWan(x.v)} <span class="muted">(${p})</span></div>
+            </div>
+            <div class="track">
+              <div class="fill" style="width:${w.toFixed(1)}%; background:${color};"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+      document.getElementById(containerId).innerHTML = html;
+    }
+
+    // ===== Tables =====
+    function renderItemsTable(tbodyId, rows, mode){
+      const tbody = document.getElementById(tbodyId);
+      tbody.innerHTML = rows.map(r=>{
+        if (mode === "fvWt"){
+          return `
+            <tr>
+              <td>${escapeHtml(r.name)}</td>
+              <td><strong>${wtFmtTon(r.wt)}</strong></td>
+              <td class="muted">${escapeHtml(r.note || "")}</td>
+            </tr>
+          `;
+        }
+        return `
+          <tr>
+            <td>${escapeHtml(r.name)}</td>
+            <td><strong>${wtFmtTon(r.wt)}</strong></td>
+            <td><strong>${amtFmtWan(r.amt)}</strong></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // ===== 进出口规模对比：并列水平条形 =====
+    function renderCompare(containerId, field, valueFmt, maxVal){
+      const imp = data.import.byCat;
+      const exp = data.export.byCat;
+
+      const html = data.categories.map(c=>{
+        const iv = imp[c.key][field] || 0;
+        const ev = exp[c.key][field] || 0;
+
+        const iw = maxVal ? (iv/maxVal*100) : 0;
+        const ew = maxVal ? (ev/maxVal*100) : 0;
+
+        return `
+          <div class="cmp-row">
+            <div class="cmp-head">
+              <div class="cmp-name">${escapeHtml(c.name)}</div>
+              <div class="cmp-values">进口 ${valueFmt(iv)}｜出口 ${valueFmt(ev)}</div>
+            </div>
+            <div class="cmp-bars">
+              <div class="cmp-bar">
+                <div class="lbl">进口</div>
+                <div class="trk"><div class="fl" style="width:${iw.toFixed(1)}%; background:var(--import);"></div></div>
+                <div class="num">${valueFmt(iv)}</div>
+              </div>
+              <div class="cmp-bar">
+                <div class="lbl">出口</div>
+                <div class="trk"><div class="fl" style="width:${ew.toFixed(1)}%; background:var(--export);"></div></div>
+                <div class="num">${valueFmt(ev)}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById(containerId).innerHTML = html;
+    }
+
+    // ===== Supplemental bullets/cards =====
+    function renderBullets(containerId, rows){
+      const html = rows.map(r=>`
+        <div class="bullet">
+          <div class="dot2"></div>
+          <div>
+            <div class="t1">${escapeHtml(r.name)}：<strong>${wtFmtTon(r.wt)}</strong> 吨</div>
+            <div class="t2">主要来源国：${escapeHtml(r.countries || "-")}</div>
+          </div>
+        </div>
+      `).join("");
+      document.getElementById(containerId).innerHTML = html;
+    }
+
+    function renderMiniCards(containerId, rows){
+      const html = rows.map(r=>`
+        <div class="mini-card">
+          <div class="n">${escapeHtml(r.name)}</div>
+          <div class="m"><strong>${fmt(r.wtWanTon, 2)}</strong> 万吨（${escapeHtml(r.countries || "-")}）</div>
+        </div>
+      `).join("");
+      document.getElementById(containerId).innerHTML = html;
+    }
+
+    function renderProcCards(containerId, rows){
+      const html = rows.map(r=>`
+        <div class="mini-card">
+          <div class="n">${escapeHtml(r.name)}</div>
+          <div class="m">${escapeHtml(r.note || "")}</div>
+        </div>
+      `).join("");
+      document.getElementById(containerId).innerHTML = html;
+    }
+
+    // ===== Init render =====
+    (function init(){
+      const impT = data.totals.import;
+      const expT = data.totals.export;
+
+      document.getElementById("kpi-import").textContent = `${wtFmtWanTon(impT.wt)} 万吨｜${amtFmtYi(impT.amt)} 亿元`;
+      document.getElementById("kpi-export").textContent = `${wtFmtWanTon(expT.wt)} 万吨｜${amtFmtYi(expT.amt)} 亿元`;
+      document.getElementById("kpi-total").textContent  = `${wtFmtWanTon(impT.wt + expT.wt)} 万吨｜${amtFmtYi(impT.amt + expT.amt)} 亿元`;
+
+      const balance = expT.amt - impT.amt;
+      const balanceEl = document.getElementById("kpi-balance");
+      balanceEl.textContent = `${amtFmtYi(balance)} 亿元`;
+      balanceEl.style.color = balance >= 0 ? css("--good") : css("--bad");
+
+      document.getElementById("meta-import-structure").textContent =
+        `金额：海鲜 ${pct(data.import.byCat.seafood.amt, impT.amt)}｜肉类 ${pct(data.import.byCat.meat.amt, impT.amt)}（合计≈99%）`;
+      document.getElementById("meta-export-structure").textContent =
+        `重量：果蔬 ${pct(data.export.byCat.fv.wt, expT.wt)}｜金额：海鲜 ${pct(data.export.byCat.seafood.amt, expT.amt)}`;
+
+      const importAmtSlices = data.categories.map(c=>({ name:c.name, v:data.import.byCat[c.key].amt, color:c.color }));
+      const importWtSlices  = data.categories.map(c=>({ name:c.name, v:data.import.byCat[c.key].wt,  color:c.color }));
+      const exportAmtSlices = data.categories.map(c=>({ name:c.name, v:data.export.byCat[c.key].amt, color:c.color }));
+      const exportWtSlices  = data.categories.map(c=>({ name:c.name, v:data.export.byCat[c.key].wt,  color:c.color }));
+
+      renderDonut("donut-import-amt", importAmtSlices, "进口", "金额占比");
+      renderDonut("donut-import-wt",  importWtSlices,  "进口", "重量占比");
+      renderDonut("donut-export-amt", exportAmtSlices, "出口", "金额占比");
+      renderDonut("donut-export-wt",  exportWtSlices,  "出口", "重量占比");
+
+      const maxAmt = Math.max(...data.categories.map(c => Math.max(data.import.byCat[c.key].amt, data.export.byCat[c.key].amt)));
+      const maxWt  = Math.max(...data.categories.map(c => Math.max(data.import.byCat[c.key].wt,  data.export.byCat[c.key].wt)));
+
+      renderCompare("cmp-amt", "amt", (wanYuan)=>`${fmt(toYiYuan(wanYuan), 2)}`, maxAmt);
+      renderCompare("cmp-wt",  "wt",  (ton)=>`${fmt(toWanTon(ton), 2)}`, maxWt);
+
+      document.getElementById("meta-import-seafood").textContent = `${wtFmtTon(data.import.byCat.seafood.wt)} 吨｜${amtFmtWan(data.import.byCat.seafood.amt)} 万元`;
+      document.getElementById("meta-import-meat").textContent    = `${wtFmtTon(data.import.byCat.meat.wt)} 吨｜${amtFmtWan(data.import.byCat.meat.amt)} 万元`;
+      document.getElementById("meta-import-fv").textContent      = `总量：${fmt(toWanTon(data.import.byCat.fv.wt), 2)} 万吨｜金额：${fmt(toYiYuan(data.import.byCat.fv.amt), 2)} 亿元`;
+      document.getElementById("meta-import-proc").textContent    = `总量：${fmt(toWanTon(data.import.byCat.proc.wt), 2)} 万吨｜金额：${fmt(toYiYuan(data.import.byCat.proc.amt), 2)} 亿元`;
+
+      document.getElementById("meta-export-seafood").textContent = `${wtFmtTon(data.export.byCat.seafood.wt)} 吨｜${amtFmtWan(data.export.byCat.seafood.amt)} 万元`;
+      document.getElementById("meta-export-fv").textContent      = `${wtFmtTon(data.export.byCat.fv.wt)} 吨｜${amtFmtWan(data.export.byCat.fv.amt)} 万元`;
+      document.getElementById("meta-export-meat").textContent    = `总量：${fmt(toWanTon(data.export.byCat.meat.wt), 2)} 万吨｜金额：${fmt(toYiYuan(data.export.byCat.meat.amt), 2)} 亿元`;
+      document.getElementById("meta-export-proc").textContent    = `总量：${fmt(toWanTon(data.export.byCat.proc.wt), 2)} 万吨｜金额：${fmt(toYiYuan(data.export.byCat.proc.amt), 2)} 亿元`;
+
+      renderBars("bars-import-seafood-countries", data.import.topCountries.seafood, css("--c1"), data.import.byCat.seafood.amt);
+      renderBars("bars-import-meat-countries",    data.import.topCountries.meat,    css("--c2"), data.import.byCat.meat.amt);
+      renderBars("bars-export-seafood-countries", data.export.topCountries.seafood, css("--c1"), data.export.byCat.seafood.amt);
+      renderBars("bars-export-fv-countries",      data.export.topCountries.fv,      css("--c3"), data.export.byCat.fv.amt);
+
+      const impSeaItems  = data.import.items.seafood.slice().sort((a,b)=>b.wt-a.wt);
+      const impMeatItems = data.import.items.meat.slice().sort((a,b)=>b.wt-a.wt);
+
+      renderItemsTable("tbl-import-seafood-items", impSeaItems, "wtAmt");
+      renderItemsTable("tbl-import-meat-items",    impMeatItems, "wtAmt");
+      renderItemsTable("tbl-export-seafood-items", data.export.items.seafood, "wtAmt");
+      renderItemsTable("tbl-export-fv-items",      data.export.items.fv,      "fvWt");
+
+      renderBullets("bullets-import-fv",   data.import.breakdowns.fv);
+      renderBullets("bullets-import-proc", data.import.breakdowns.proc);
+
+      document.getElementById("export-meat-dests").textContent = data.export.breakdowns.meat.dests;
+      renderMiniCards("cards-export-meat", data.export.breakdowns.meat.items);
+      renderProcCards("cards-export-proc", data.export.breakdowns.proc.items);
+    })();
+  </script>
+
+
+</body></html>
